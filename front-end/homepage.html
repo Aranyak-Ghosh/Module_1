@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    
+<head>
+<title>
+    Homepage || Welcome, <span id='username'></span>!
+</title>
+</head>
+<body>
+    <div id="map" style="width:400px;height:400px"></div>
+    <button onclick="showRoute('KnuthMusicHalll')"></button>
+</body>
+
+<script>
+    var map;
+    var center;
+function myMap() {
+    center =  new google.maps.LatLng(37.721314, -122.479763); 
+    var mapOptions = {
+        center: center,
+        zoom: 20,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+map = new google.maps.Map(document.getElementById("map"), mapOptions);
+var marker = new google.maps.Marker({
+    position: center
+});
+marker.setMap(map);
+
+}
+
+
+function showRoute(destination){
+    var beacon0 = new google.maps.LatLng( 37.721325, -122.479749);
+    var beacon1 = new google.maps.LatLng( 37.721516, -122.479545);
+    var beacon2 = new google.maps.LatLng(37.721428, -122.479691);
+    var beacon3 = new google.maps.LatLng(37.721400, -122.479569);
+    var beacon4 = new google.maps.LatLng(37.721502, -122.479531);
+    var beacon5 = new google.maps.LatLng(37.721692, -122.479451);
+    var beacon6 = new google.maps.LatLng(37.721810, -122.479884);
+    var beacon7 = new google.maps.LatLng(37.721570, -122.480226);
+    var beacon8 = new google.maps.LatLng(37.721466, -122.480271);
+    var destinationMarker;
+    switch (destination){
+        case "KnuthMusicHalll":
+            var beacons_KnuthMusicHall = [center, beacon2, beacon3, beacon4];
+            var path_KnuthMusicHall = new google.maps.Polyline({
+                path:beacons_KnuthMusicHall,
+                strokeColor:"#0000FF",
+                strokeOpacity:0.8,
+                strokeWeight:2
+            });
+            path_KnuthMusicHall.setMap(map);
+            destinationMarker = beacons_KnuthMusicHall[beacons_KnuthMusicHall.length-1];
+            break;
+        case "LittleTheater":
+            var beacons_LittleTheater = [center, beacon2, beacon3, beacon4, beacon5, beacon6];
+            var path_LittleTheater = new google.maps.Polyline({
+                path:beacons_LittleTheater,
+                strokeColor:"#0000FF",
+                strokeOpacity:0.8,
+                strokeWeight:2
+            });
+            path_LittleTheater.setMap(map);
+            destinationMarker = beacons_LittleTheater[beacons_LittleTheater.length-1];
+        break;
+        case "LightsAndEquipmentDepartment":
+            var beacons_LightsAndEquipmentDepartment = [center,beacon2, beacon7, beacon8];
+            var path_LightAndEquipmentDepartment = new google.maps.Polyline({
+                path:beacons_LightsAndEquipmentDepartment,
+                strokeColor:"#0000FF",
+                strokeOpacity:0.8,
+                strokeWeight:2
+            });
+            path_LightAndEquipmentDepartment.setMap(map);
+            destinationMarker = beacons_LightsAndEquipmentDepartment[beacons_LightsAndEquipmentDepartment.length-1];
+        break;
+    }
+    var marker = new google.maps.Marker({
+    position: destinationMarker,
+    animation: google.maps.Animation.BOUNCE});
+    marker.setMap(map);
+}
+
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=myMap"></script>
+
+</html>
