@@ -7,30 +7,82 @@
 </title>
 </head>
 <body>
-    <div id="map" style="width:400px;height:400px"></div>
-    <button onclick="showRoute('KnuthMusicHalll')"></button>
+    <div id="map" style="width:400px;height:400px" onkeypress="movelocation()"></div>
+
+    <button onclick="showRoute('LightsAndEquipmentDepartment')">
+        Click me
+    </button>
+
+    <input id="search_field" type="text">
+    <button onclick="findRoute()">search for location</button>
+<!-- 
+    <form action="/get_route" method="GET">
+        <input name="location" type="text"></input>
+        <input type="submit" value="Search"></input>
+    </form> -->
 </body>
 
 <script>
-    var map;
-    var center;
-function myMap() {
-    center =  new google.maps.LatLng(37.721314, -122.479763); 
-    var mapOptions = {
-        center: center,
-        zoom: 20,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    }
-map = new google.maps.Map(document.getElementById("map"), mapOptions);
-var marker = new google.maps.Marker({
-    position: center
-});
-marker.setMap(map);
 
+//////////////////////////////////////////////////////
+// In case of no hardcode
+
+// function submitForm() {
+//     var http = new XMLHttpRequest();
+//     http.open("POST", "search_field", true);
+//     http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+//     var params = "search=" +document.getElementById("location").value; // probably use document.getElementById(...).value
+//     http.send(params);
+//     http.onload = function() {
+//         var results = JSON.parse(http.responseText);
+        
+//         alert(http.responseText);
+//     }
+// }
+
+//  var showRoute = function(route){
+//      var beacons = [];
+//      for (var i =0; i<route.length; i++){
+//          var beaconLocation = new google.maps.LatLng( route.beacons[i].lat,route.beacons[i].long);
+//          beacons.push(beaconLocation);
+//      }
+//     createRoute(beacons);
+//  }
+
+
+
+//////////////////////////////////////////////////////
+
+const KnuthMusicHalll = "knuthmusichall";
+const LittleTheater = "littletheater";
+const LightsAndEquipmentDepartment = "lightsandequipmentdepartment";
+
+var route;
+var destinationMarker;
+var centerMarker;
+var centerPosition;
+
+document.getElementById("map").addEventListener('keydown', pressArrow,false);
+
+var map;
+
+function myMap() {
+    centerPosition =  new google.maps.LatLng(37.721314, -122.479763); 
+    var mapOptions = {
+        zoom: 20,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        disableDefaultUI: true
+    }
+    map = new google.maps.Map(document.getElementById("map"), mapOptions);
+    map.panTo(centerPosition);
+    centerMarker = new google.maps.Marker({
+        position: centerPosition
+    });
+    centerMarker.setMap(map);
 }
 
 
-function showRoute(destination){
+function findRoute(){
     var beacon0 = new google.maps.LatLng( 37.721325, -122.479749);
     var beacon1 = new google.maps.LatLng( 37.721516, -122.479545);
     var beacon2 = new google.maps.LatLng(37.721428, -122.479691);
@@ -40,47 +92,100 @@ function showRoute(destination){
     var beacon6 = new google.maps.LatLng(37.721810, -122.479884);
     var beacon7 = new google.maps.LatLng(37.721570, -122.480226);
     var beacon8 = new google.maps.LatLng(37.721466, -122.480271);
-    var destinationMarker;
-    switch (destination){
-        case "KnuthMusicHalll":
-            var beacons_KnuthMusicHall = [center, beacon2, beacon3, beacon4];
-            var path_KnuthMusicHall = new google.maps.Polyline({
-                path:beacons_KnuthMusicHall,
-                strokeColor:"#0000FF",
-                strokeOpacity:0.8,
-                strokeWeight:2
-            });
-            path_KnuthMusicHall.setMap(map);
-            destinationMarker = beacons_KnuthMusicHall[beacons_KnuthMusicHall.length-1];
-            break;
-        case "LittleTheater":
-            var beacons_LittleTheater = [center, beacon2, beacon3, beacon4, beacon5, beacon6];
-            var path_LittleTheater = new google.maps.Polyline({
-                path:beacons_LittleTheater,
-                strokeColor:"#0000FF",
-                strokeOpacity:0.8,
-                strokeWeight:2
-            });
-            path_LittleTheater.setMap(map);
-            destinationMarker = beacons_LittleTheater[beacons_LittleTheater.length-1];
+    var query = document.getElementById("search_field").value;
+    var cleanedQuery = query.replace(/\s/g, "").toLowerCase();
+    switch(cleanedQuery){
+        case KnuthMusicHalll:
+            var beacons_KnuthMusicHall = [centerPosition, beacon2, beacon3, beacon4];
+            createRoute(beacons_KnuthMusicHall);
         break;
-        case "LightsAndEquipmentDepartment":
-            var beacons_LightsAndEquipmentDepartment = [center,beacon2, beacon7, beacon8];
-            var path_LightAndEquipmentDepartment = new google.maps.Polyline({
-                path:beacons_LightsAndEquipmentDepartment,
-                strokeColor:"#0000FF",
-                strokeOpacity:0.8,
-                strokeWeight:2
-            });
-            path_LightAndEquipmentDepartment.setMap(map);
-            destinationMarker = beacons_LightsAndEquipmentDepartment[beacons_LightsAndEquipmentDepartment.length-1];
+        case LittleTheater:
+            var beacons_LittleTheater = [centerPosition, beacon2, beacon3, beacon4, beacon5, beacon6];
+            createRoute(beacons_LittleTheater);
+        break;
+        case LightsAndEquipmentDepartment:
+            var beacons_LightsAndEquipmentDepartment = [centerPosition,beacon2, beacon7, beacon8];
+            createRoute(beacons_LightsAndEquipmentDepartment)
         break;
     }
-    var marker = new google.maps.Marker({
-    position: destinationMarker,
-    animation: google.maps.Animation.BOUNCE});
-    marker.setMap(map);
 }
+
+function pressArrow(key){
+
+    var oldLat = centerPosition.lat();
+    var oldLong = centerPosition.lng();
+    switch(key.key){
+        case "ArrowRight": // right
+            moveCenter(oldLat, oldLong+0.00001);
+            break;
+        case "ArrowLeft":
+
+            moveCenter(oldLat, oldLong-0.00001);
+        break;
+        case "ArrowUp":
+            moveCenter(oldLat+0.00001, oldLong);
+        break;
+        case "ArrowDown":
+            moveCenter(oldLat-0.00001, oldLong);
+        break;
+    }
+}
+
+function moveCenter(newLat, newLong){
+    map.setZoom(20);
+    centerPosition = new google.maps.LatLng(newLat, newLong);
+    centerMarker.setPosition(centerPosition);
+    centerMarker.setDraggable(true);
+    centerMarker.setMap(map);
+    map.panTo(centerPosition);
+}
+
+var createRoute = function(beacons){
+    if (route) route.setMap(null);
+    if (destinationMarker) destinationMarker.setMap(null);
+    route = new google.maps.Polyline({
+                path:beacons,
+                strokeColor:"#0000FF",
+                strokeOpacity:0.8,
+                strokeWeight:2
+            });
+    route.setMap(map);
+    var destinationMarkerLocation = beacons[beacons.length-1];
+    destinationMarker = new google.maps.Marker({
+        position: destinationMarkerLocation,
+        animation: google.maps.Animation.BOUNCE});
+    destinationMarker.setMap(map);
+    map.setZoom(18.4);
+    document.getElementById("map").focus();
+}
+
+
+// function showRoute(destination){
+//     var beacon0 = new google.maps.LatLng( 37.721325, -122.479749);
+//     var beacon1 = new google.maps.LatLng( 37.721516, -122.479545);
+//     var beacon2 = new google.maps.LatLng(37.721428, -122.479691);
+//     var beacon3 = new google.maps.LatLng(37.721400, -122.479569);
+//     var beacon4 = new google.maps.LatLng(37.721502, -122.479531);
+//     var beacon5 = new google.maps.LatLng(37.721692, -122.479451);
+//     var beacon6 = new google.maps.LatLng(37.721810, -122.479884);
+//     var beacon7 = new google.maps.LatLng(37.721570, -122.480226);
+//     var beacon8 = new google.maps.LatLng(37.721466, -122.480271);
+//     switch (destination){
+//         case "KnuthMusicHalll":
+//             var beacons_KnuthMusicHall = [centerPosition, beacon2, beacon3, beacon4];
+//             createRoute(beacons_KnuthMusicHall);
+//             break;
+//         case "LittleTheater":
+//             var beacons_LittleTheater = [centerPosition, beacon2, beacon3, beacon4, beacon5, beacon6];
+//             createRoute(beacons_LittleTheater);
+//         break;
+//         case "LightsAndEquipmentDepartment":
+//             var beacons_LightsAndEquipmentDepartment = [centerPosition,beacon2, beacon7, beacon8];
+//             createRoute(beacons_LightsAndEquipmentDepartment)
+//         break;
+//     }
+   
+// }
 
 
 </script>
