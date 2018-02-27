@@ -22,7 +22,7 @@ public class PingServer extends Thread {
     public PingServer(int port, int noOfClients) {
         this.port = port;
         this.noOfClients = noOfClients;
-        handler=new ArrayList<>();
+        handler = new ArrayList<>();
     }
 
     public void run() {
@@ -37,17 +37,28 @@ public class PingServer extends Thread {
 
             logfilewriter.write(LocalDateTime.now().toString() + ": ServerSocket created on port: " + port + ".\n");
 
-            Socket socket = server.accept();
+            while (true) {
+                Socket socket = server.accept();
 
-            logfilewriter.write(LocalDateTime.now().toString() + ": Connection Accepted. Client INET address: " + socket.getInetAddress());
+                logfilewriter.write(LocalDateTime.now().toString() + ": Connection Accepted. Client INET address: " + socket.getInetAddress() + "\n");
 
-            logfilewriter.flush();
-            logfilewriter.close();
-            handler.add(new HandleConnection(socket));
+                logfilewriter.flush();
+                HandleConnection temp=new HandleConnection(socket);
+                handler.add(temp);
 
+                temp.start();
+
+                for (HandleConnection h : handler
+                        ) {
+                    if (h.isAlive())
+                        h.join();
+                }
+            }
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

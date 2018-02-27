@@ -22,7 +22,7 @@ public class HandleConnection extends Thread {
         logfile = new File(logpath);
         try {
             logWriter = new FileWriter(logfile, true);
-            logWriter.write(LocalDateTime.now().toString() + ": Connection Handler object created for client " + socket.getInetAddress());
+            logWriter.write(LocalDateTime.now().toString() + ": Connection Handler object created for client " + socket.getInetAddress()+"\n");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class HandleConnection extends Thread {
             reHeaders = "HTTP/1.1 200 OK\r\nContent-type = text/html\r\nConnection = " + keepAliveS + "\r\nServer = "
                     + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date + "\r\n\r\n";
             try {
-                logWriter.write(LocalDateTime.now().toString() + ": HTTP 200 header created");
+                logWriter.write(LocalDateTime.now().toString() + ": HTTP 200 header created\n");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -65,7 +65,7 @@ public class HandleConnection extends Thread {
                     + "\r\nServer = " + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date
                     + "\r\n\r\n";
             try {
-                logWriter.write(LocalDateTime.now().toString() + ": HTTP 404 header created");
+                logWriter.write(LocalDateTime.now().toString() + ": HTTP 404 header created\n");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -94,15 +94,15 @@ public class HandleConnection extends Thread {
 
         if (path.equals("/")) {
             infile = new File(directory + homepage);
-        } else if (path.equalsIgnoreCase("//login")) {
+        } else if (path.equalsIgnoreCase("/login")) {
             infile = new File(directory + login);
-        } else if (path.equalsIgnoreCase("//signup")) {
+        } else if (path.equalsIgnoreCase("/signup")) {
             infile = new File(directory + signup);
         } else {
             infile = new File(directory + fourofour);
         }
         try {
-            logWriter.write(LocalDateTime.now() + ": File requested: " + path);
+            logWriter.write(LocalDateTime.now() + ": File requested: " + path+"\n");
             logWriter.flush();
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -123,7 +123,7 @@ public class HandleConnection extends Thread {
 
     public void run() {
         try {
-            logWriter.write(LocalDateTime.now().toString() + ": Handle Connection thread running");
+            logWriter.write(LocalDateTime.now().toString() + ": Handle Connection thread running\n");
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String request = "";
@@ -143,7 +143,7 @@ public class HandleConnection extends Thread {
                 String payload = ReadFile(path);
                 String resheader = createHeader(payload, !payload.contains("404"));
 
-                logWriter.write(LocalDateTime.now().toString() + ": Get request received from client");
+                logWriter.write(LocalDateTime.now().toString() + ": Get request received from client\n");
                 /*
                 * Handle cookies
                 * */
@@ -161,17 +161,23 @@ public class HandleConnection extends Thread {
                 ArrayList<String> fields = new ArrayList<String>(Arrays.asList(payload.split("&")));
                 if (fields.size() > 2) {
                     //Register
-
+                    String username, password, email;
                     for (String s : fields
                             ) {
                         String fieldname = s.split("=", 2)[0];
                         String fieldvalue = s.split("=", 2)[1];
 
-                        
+                        if(fieldname.equalsIgnoreCase("username"))
+                            username=fieldvalue;
+                        else if(fieldname.equalsIgnoreCase("password"))
+                            password=fieldvalue;
+                        else
+                            email=fieldvalue;
                     }
                     UserInfo user = new UserInfo();
                 }
             }
+            this.socket.close();
 
         } catch (IOException ex) {
             ex.printStackTrace();
