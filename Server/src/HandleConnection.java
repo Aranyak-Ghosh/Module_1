@@ -1,22 +1,17 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class HandleConnection extends Thread {
 
-    Socket socket;
+    private Socket socket;
+    private static String logpath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//log.txt";
+    private File logfile;
+    private FileWriter logWriter;
 
     public HandleConnection() {
         this.socket = null;
@@ -24,15 +19,16 @@ public class HandleConnection extends Thread {
 
     public HandleConnection(Socket socket) {
         this.socket = socket;
-    }
-
-    static String readFile(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
+        logfile = new File(logpath);
+        try {
+            logWriter = new FileWriter(logfile, true);
+            logWriter.write(LocalDateTime.now().toString() + ": Connection Handler object created for client " + socket.getInetAddress());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private String createHeader(String payload, boolean success) {
-
         int contentLength = payload.length();
 
         String date = (new Date()).toString();
@@ -52,8 +48,6 @@ public class HandleConnection extends Thread {
 
         } catch (SocketException e) {
 
-            // TODO Auto-generated catch block
-
             e.printStackTrace();
 
         }
@@ -61,292 +55,127 @@ public class HandleConnection extends Thread {
         if (success) {
             reHeaders = "HTTP/1.1 200 OK\r\nContent-type = text/html\r\nConnection = " + keepAliveS + "\r\nServer = "
                     + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date + "\r\n\r\n";
-        } else {
-            reHeaders = "HTTP/1.1 404 NOT FOUND\r\nContent-type = text/html\r\nConnection = " + keepAliveS
-                    + "\r\nServer = " + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date
-                    + "\r\n\r\n";
-        }
-        return reHeaders;
-
-    }
-
-    public void run() {
-        try {
-
-            System.out.println("HandleConnection thread started");
-
-            System.out.println("Proceesing client connection");
-            while (true) {
-
-                System.out.println("Proceesing client input");
-
-                OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream()); // once connection is
-                // established, grab output
-                // stream
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // grab input
-                // stream
-
-                int c;
-                String request = "";
-				/*while ((c = in.read())!=-1) {
-					request += (char)c;
-				}*/
-
-                String inputString="";
-
-                while (!(inputString = in.readLine()).equals("")) {
-                    request = request+inputString+"\r\n";
-                }
-
-                if(in.ready())
-                    inputString=in.readLine();
-//				inputString=in.readLine();
-                if (request.startsWith("GET")) {
-                    try {
-                        String[] req = request.split(" ");
-                        String filepath = "C:\\Users\\Aranyak Ghosh\\eclipse-java-workspace\\COE49407\\Server\\src";
-
-                        File infile = null;
-                        if (req[1].trim().equals("/")) {
-                            infile = new File(filepath + "\\index.html");
-                        } else {
-                            infile = new File(filepath + req[1]);
-                        }
-                        if (infile.exists()) {
-                            // Header for file
-                            FileReader fin = new FileReader(infile);
-                            out.flush();
-
-                            BufferedReader read = new BufferedReader(fin);
-                            // out.write("\r\n");
-                            String filetext;
-                            String file = "";
-                            while ((filetext = read.readLine()) != null) {
-                                // out.write(filetext + "\n");
-                                file += filetext;
-                                file += "\n";
-                            }
-
-                            out.write(createHeader(file, true));
-                            out.write(file);
-                            out.write("\r\n");
-                            out.flush();
-                        } else {
-
-                            infile = new File(filepath + "\\nf.html");
-
-                            FileReader fin = new FileReader(infile);
-                            out.flush();
-
-                            BufferedReader read = new BufferedReader(fin);
-
-                            String filetext;
-                            String file = "";
-                            while ((filetext = read.readLine()) != null) {
-
-                                file += filetext;
-                                file += "\n";
-                            }
-
-                            out.write(createHeader(file, true));
-                            out.write(file);
-                            out.write("\r\n");
-                            out.flush();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else if (request.startsWith("POST")) {
-                    String filepath = "C:\\Users\\Aranyak Ghosh\\eclipse-java-workspace\\COE49407\\Server\\src";
-
-                    //System.out.println(" post");
-                    File response = new File(filepath + "\\formrec.html");
-                    FileReader fin = new FileReader(response);
-
-
-                    String name=inputString;
-                    System.out.println(name);
-                    BufferedReader read = new BufferedReader(fin);
-                    String filetext;
-                    String file = "";
-                    while ((filetext = read.readLine()) != null) {
-                        file += filetext;
-                        file += "\n";
-                        if (filetext.contains("<p>")) {
-                            file += name;
-                            file += "\n";
-                        }
-                    }
-
-                    out.write(createHeader(file, true));
-                    out.write(file);
-                    out.write("\r\n");
-                    out.flush();
-
-                } else if (request.startsWith("OPTIONS")) {
-
-                } else if (request.startsWith("HEAD")) {
-
-                    try {
-                        String[] req = request.split(" ");
-                        String filepath = "C:\\Users\\profile\\workspace\\Server\\src";
-
-                        File infile = null;
-                        if (req[1].trim().equals("/")) {
-                            infile = new File(filepath + "\\index.html");
-                        } else {
-                            infile = new File(filepath + req[1]);
-                        }
-                        if (infile.exists()) {
-
-                            FileReader fin = new FileReader(infile);
-                            out.flush();
-
-                            BufferedReader read = new BufferedReader(fin);
-
-                            String filetext;
-                            String file = "";
-                            while ((filetext = read.readLine()) != null) {
-
-                                file += filetext;
-                                file += "\n";
-                            }
-
-                            out.write(createHeader(file, true));
-                            // out.write(file);
-                            out.write("\r\n");
-                            out.flush();
-                        } else {
-                            // Header for file doesn't exist
-                            infile = new File(filepath + "\\nf.html");
-
-                            FileReader fin = new FileReader(infile);
-                            out.flush();
-
-                            BufferedReader read = new BufferedReader(fin);
-                            // out.write("\r\n");
-                            String filetext;
-                            String file = "";
-                            while ((filetext = read.readLine()) != null) {
-                                // out.write(filetext + "\n");
-                                file += filetext;
-                                file += "\n";
-                            }
-
-                            out.write(createHeader(file, true));
-                            // out.write(file);
-                            out.write("\r\n");
-                            out.flush();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                socket.close();
-                break;
-
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
             try {
-                if (!this.socket.isClosed())
-                    this.socket.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logWriter.write(LocalDateTime.now().toString() + ": HTTP 200 header created");
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        }
-    }
-
-}
-
-public class HandleConnection extends Thread{
-
-    private Socket socket;
-    private static String logpath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//log.txt";
-    private File logfile;
-
-    public HandleConnection(){
-        this.socket=null;
-    }
-
-    public HandleConnection(Socket socket){
-        this.socket=socket;
-        logfile=new File(logpath);
-    }
-
-    private String createHeader(String payload, boolean success){
-        int contentLength = payload.length();
-
-        String date = (new Date()).toString();
-
-        String serverName = socket.getInetAddress().toString();
-
-        boolean keepAlive;
-
-        String keepAliveS = "closed";
-
-        try {
-
-            keepAlive = socket.getKeepAlive();
-
-            if (keepAlive)
-                keepAliveS = "keep-alive";
-
-        } catch (SocketException e) {
-
-            e.printStackTrace();
-
-        }
-        String reHeaders = null;
-        if (success) {
-            reHeaders = "HTTP/1.1 200 OK\r\nContent-type = text/html\r\nConnection = " + keepAliveS + "\r\nServer = "
-                    + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date + "\r\n\r\n";
         } else {
             reHeaders = "HTTP/1.1 404 NOT FOUND\r\nContent-type = text/html\r\nConnection = " + keepAliveS
                     + "\r\nServer = " + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date
                     + "\r\n\r\n";
+            try {
+                logWriter.write(LocalDateTime.now().toString() + ": HTTP 404 header created");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
         return reHeaders;
     }
 
-    private String ReadFile(String path){
-        String payload="";
+    private String ReadFile(String path) {
+        String payload = "";
 
         /*
         * Front End directory
         * */
-        String directory="C://Users//Aranyak Ghosh//IdeaProjects//Module_1//front-end";
+        String directory = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//front-end";
 
         /*
         * Filenames
         * */
-        String homepage="//homepage.html";
-        String login="//login.html";
-        String signup="//signup.html";
-        String fourofour="//fourofour.html";
+        String homepage = "//homepage.html";
+        String login = "//login.html";
+        String signup = "//signup.html";
+        String fourofour = "//fourofour.html";
 
 
-        File infile=null;
+        File infile = null;
 
-        if(path.equals("/")){
-            infile=new File(directory+homepage);
+        if (path.equals("/")) {
+            infile = new File(directory + homepage);
+        } else if (path.equalsIgnoreCase("//login")) {
+            infile = new File(directory + login);
+        } else if (path.equalsIgnoreCase("//signup")) {
+            infile = new File(directory + signup);
+        } else {
+            infile = new File(directory + fourofour);
         }
-        else if(path.equalsIgnoreCase("//login")){
-            infile=new File(directory+login);
+        try {
+            logWriter.write(LocalDateTime.now() + ": File requested: " + path);
+            logWriter.flush();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        else if(path.equalsIgnoreCase("//signup")){
-            infile=new File(directory+signup);
-        }
-        else{
-            infile=new File(directory+fourofour);
+        try {
+            FileReader in = new FileReader(infile);
+            int c;
+            while ((c = in.read()) != -1)
+                payload += (char) c;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
+        return payload;
+    }
+
+    public void run() {
+        try {
+            logWriter.write(LocalDateTime.now().toString() + ": Handle Connection thread running");
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String request = "";
+
+            String inputString = "";
+            int length = 0;
+            while (!(inputString = in.readLine()).equals("")) {
+                request = request + inputString + "\r\n";
+                if (inputString.contains("Content-Length:")) {
+                    length = Integer.parseInt(inputString.substring(inputString.indexOf("Content-Length:") + 16, inputString.length()));
+                }
+            }
+
+            String[] reqheader = request.split("\n");
+            if (reqheader[0].startsWith("GET")) {
+                String path = reqheader[0].split(" ")[1].trim();
+                String payload = ReadFile(path);
+                String resheader = createHeader(payload, !payload.contains("404"));
+
+                logWriter.write(LocalDateTime.now().toString() + ": Get request received from client");
+                /*
+                * Handle cookies
+                * */
 
 
+                out.write(resheader + payload + "\r\n");
+                out.flush();
+            } else if (reqheader[0].startsWith("POST")) {
+                String payload = "";
+                for (int i = 0; i < length; i++) {
+                    int c = in.read();
+                    payload += (char) c;
+                }
+
+                ArrayList<String> fields = new ArrayList<String>(Arrays.asList(payload.split("&")));
+                if (fields.size() > 2) {
+                    //Register
+
+                    for (String s : fields
+                            ) {
+                        String fieldname = s.split("=", 2)[0];
+                        String fieldvalue = s.split("=", 2)[1];
+
+                        
+                    }
+                    UserInfo user = new UserInfo();
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
