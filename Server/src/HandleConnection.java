@@ -84,7 +84,7 @@ public class HandleConnection extends Thread {
             String cookieExpires = DateTimeFormatter.RFC_1123_DATE_TIME.format(onemonthFromNow);
             reHeaders+=" "+cookieExpires+"\r\n";
             try{
-                BufferedReader read=new BufferedReader(new FileReader(new File("/info/Cookies.txt")));
+                BufferedReader read=new BufferedReader(new FileReader(new File("info/Cookies.txt")));
                 String s;
                 String cookie_list="";
                 FileWriter cookiewrite=new FileWriter(new File("/info/Cookies.txt"));
