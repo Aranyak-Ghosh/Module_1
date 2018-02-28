@@ -79,23 +79,32 @@ public class HandleConnection extends Thread {
         }
         if(cookie)
         {
-            reHeaders+="Set-Cookie: Date="+LocalDateTime.now().toString();
+            String tem=LocalDateTime.now().toString();
+            reHeaders+="Set-Cookie: Date="+tem+"\r\n";
             OffsetDateTime onemonthFromNow = OffsetDateTime.now(ZoneOffset.UTC).plus(Duration.ofHours(1));
             String cookieExpires = DateTimeFormatter.RFC_1123_DATE_TIME.format(onemonthFromNow);
-            reHeaders+=" "+cookieExpires+"\r\n";
+            //reHeaders+=" "+cookieExpires+"\r\n";
             try{
                 BufferedReader read=new BufferedReader(new FileReader(new File("info/Cookies.txt")));
                 String s;
                 String cookie_list="";
-                FileWriter cookiewrite=new FileWriter(new File("/info/Cookies.txt"));
+                FileWriter cookiewrite=new FileWriter(new File("info/Cookies.txt"));
+                boolean usercookie=false;
                 while((s=read.readLine())!=null)
                 {
-                    if(s.contains(user.getUsername()))
-                        s=user.getUsername()+"\t"+LocalDateTime.now().toString();
+                    if(s.contains(user.getUsername())){
+                        s=user.getUsername()+"\tDate="+tem;
+                        usercookie=true;
+                    }
                     cookie_list+=s;
                     cookie_list+="\n";
                 }
+
+                if(!usercookie)
+                    cookie_list+=user.getUsername()+"\tDate="+tem+"\n";
+
                 cookiewrite.write(cookie_list);
+                cookiewrite.flush();
             }catch(FileNotFoundException ex){
                 ex.printStackTrace();
             }catch(IOException e){
@@ -126,7 +135,7 @@ public class HandleConnection extends Thread {
         File infile = null;
 
         if (path.equals("/")) {
-            infile = new File(rel_directory + login);
+            infile = new File(rel_directory + homepage);
         } else if (path.equalsIgnoreCase("/login")) {
             infile = new File(rel_directory + login);
         } else if (path.equalsIgnoreCase("/signup")) {
@@ -155,7 +164,7 @@ public class HandleConnection extends Thread {
                     while ((s = in.readLine()) != null) {
                         payload += s;
                         if (s.contains("<head>"))
-                            payload += "<meta http-equiv=\"refresh\" content=\"0; url=" + socket.getLocalSocketAddress() + "/" + redirectto + "\"/>";
+                            payload += "<meta http-equiv=\"refresh\" content=\"0; url='http://localhost:8080" + redirectto + "'\"/>";
                         payload+="\r\n";
                     }
                 } else {
@@ -195,7 +204,7 @@ public class HandleConnection extends Thread {
                     length = Integer.parseInt(inputString.substring(inputString.indexOf("Content-Length:") + 16, inputString.length()));
                 }
                if(inputString.contains("Cookie"))
-                    cookie=inputString.split("=")[1];
+                    cookie=inputString.split(": ")[1];
             }
 
             String[] reqheader = request.split("\n");
@@ -244,7 +253,7 @@ public class HandleConnection extends Thread {
                             username=fieldvalue;
                         else if(fieldname.equalsIgnoreCase("password"))
                             password=fieldvalue;
-                        else
+                        else if(fieldname.equalsIgnoreCase("email"))
                             email=fieldvalue;
                     }
                     user = new UserInfo(username,password,email);
@@ -252,7 +261,7 @@ public class HandleConnection extends Thread {
                         user.addUser();
                         logWriter.write(LocalDateTime.now().toString()+": User created");
 
-                        String response=ReadFile("refresh\tlogin");
+                        String response=ReadFile("refresh\t/login");
                         String resheader=createHeader(payload,true,false);
                         out.write(resheader+response);
                     }
@@ -279,9 +288,10 @@ public class HandleConnection extends Thread {
                     }
                     if(UserInfo.authenticate(username,password)){
                         user=new UserInfo(username,password,"not_required");
-                        String response=ReadFile("refresh\thomepage");
+                        String response=ReadFile("refresh\t/");
                         String head=createHeader(response,true,true);
                         out.write(head+response);
+                        out.flush();
                         logWriter.write(LocalDateTime.now().toString()+": User Authenticated");
                     }
                     else{
@@ -292,6 +302,7 @@ public class HandleConnection extends Thread {
 
                 }
             }
+            logWriter.flush();
             this.socket.close();
 
         } catch (IOException ex) {
