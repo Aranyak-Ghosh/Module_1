@@ -1,7 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class UserInfo {
     private String username;
@@ -41,6 +38,38 @@ public class UserInfo {
             ex.printStackTrace();
         }
 
+    }
 
+    public boolean exist() {
+        try {
+            BufferedReader uin = new BufferedReader(new FileReader("C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//info//User_Info.txt"));
+            String s;
+            while ((s = uin.readLine()) != null) {
+                if (s.startsWith(this.username)||s.contains(this.email))
+                    return true;
+            }
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean authenticate(String username, String password){
+        try {
+            BufferedReader uin = new BufferedReader(new FileReader("C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//info//Credential.txt"));
+            String s;
+            while((s=uin.readLine())!=null){
+                String[] cred=s.split("\t",2);
+                if(cred[0].equals(username)&&cred[1].equals(password))
+                    return true;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

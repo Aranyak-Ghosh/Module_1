@@ -98,7 +98,10 @@ public class HandleConnection extends Thread {
             infile = new File(directory + login);
         } else if (path.equalsIgnoreCase("/signup")) {
             infile = new File(directory + signup);
-        } else {
+        } else if(path.equalsIgnoreCase("/favicon.ico")){
+            //DO NOTHING
+        }
+        else {
             infile = new File(directory + fourofour);
         }
         try {
@@ -140,6 +143,7 @@ public class HandleConnection extends Thread {
             String[] reqheader = request.split("\n");
             if (reqheader[0].startsWith("GET")) {
                 String path = reqheader[0].split(" ")[1].trim();
+
                 String payload = ReadFile(path);
                 String resheader = createHeader(payload, !payload.contains("404"));
 
@@ -161,7 +165,8 @@ public class HandleConnection extends Thread {
                 ArrayList<String> fields = new ArrayList<String>(Arrays.asList(payload.split("&")));
                 if (fields.size() > 2) {
                     //Register
-                    String username, password, email;
+                    logWriter.write(LocalDateTime.now()+": Register request received\n");
+                    String username=null, password=null, email=null;
                     for (String s : fields
                             ) {
                         String fieldname = s.split("=", 2)[0];
@@ -174,7 +179,44 @@ public class HandleConnection extends Thread {
                         else
                             email=fieldvalue;
                     }
-                    UserInfo user = new UserInfo();
+                    UserInfo user = new UserInfo(username,password,email);
+                    if(!user.exist()){
+                        user.addUser();
+                        logWriter.write(LocalDateTime.now().toString()+": User created");
+                        //TODO: Send login page
+                        //TODO: Redirect
+                    }
+                    else{
+                        logWriter.write(LocalDateTime.now().toString()+": User already exists.");
+                        //TODO: Send error message, User already exists
+
+                    }
+                }
+                else{
+                    logWriter.write(LocalDateTime.now().toString()+": Login request received");
+                    String username=null;
+                    String password=null;
+                    for (String s : fields
+                            ) {
+                        String fieldname = s.split("=", 2)[0];
+                        String fieldvalue = s.split("=", 2)[1];
+
+                        if(fieldname.equalsIgnoreCase("username"))
+                            username=fieldvalue;
+                        else
+                            password=fieldvalue;
+
+                    }
+                    if(UserInfo.authenticate(username,password)){
+                        //TODO: Send homepage page
+                        //TODO: Redirect
+                        //TODO: Send a cookie as part of the header
+                    }
+                    else{
+                        //TODO: Send error message
+                        //TODO: invalid username or password
+                    }
+
                 }
             }
             this.socket.close();
