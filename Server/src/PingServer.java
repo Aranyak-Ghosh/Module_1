@@ -10,18 +10,15 @@ import java.util.logging.Logger;
 
 public class PingServer extends Thread {
     int port;
-    int noOfClients;
     ArrayList<HandleConnection> handler = null;
-    private static String logpath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//log.txt";
+    private static String logpath = "log.txt";
 
     public PingServer() {
         port = 0;
-        noOfClients = 0;
     }
 
-    public PingServer(int port, int noOfClients) {
+    public PingServer(int port) {
         this.port = port;
-        this.noOfClients = noOfClients;
         handler = new ArrayList<>();
     }
 

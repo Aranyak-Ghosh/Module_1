@@ -22,7 +22,7 @@ public class UserInfo {
     }
 
     public void addUser() {
-        String filepath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//info";
+        String filepath = "info";
         File userfile = new File(filepath + "//User_Info.txt");
         File cred = new File(filepath + "//Credentials.txt");
         try {
@@ -30,8 +30,8 @@ public class UserInfo {
             FileWriter credwriter = new FileWriter(cred, true);
             FileWriter userwriter = new FileWriter(userfile, true);
 
-            credwriter.write(username + "\t" + password);
-            userwriter.write(username + "\t" + email);
+            credwriter.write(username + "\t" + password+'\n');
+            userwriter.write(username + "\t" + email+'\n');
 
             credwriter.flush();
             userwriter.flush();
@@ -46,7 +46,7 @@ public class UserInfo {
 
     public boolean exist() {
         try {
-            BufferedReader uin = new BufferedReader(new FileReader(new File("//info//User_Info.txt")));
+            BufferedReader uin = new BufferedReader(new FileReader(new File("info/User_Info.txt")));
             String s;
             while ((s = uin.readLine()) != null) {
                 if (s.startsWith(this.username)||s.contains(this.email))
@@ -63,7 +63,7 @@ public class UserInfo {
 
     public static boolean authenticate(String username, String password){
         try {
-            BufferedReader uin = new BufferedReader(new FileReader(new File("//info//Credential.txt")));
+            BufferedReader uin = new BufferedReader(new FileReader(new File("info/Credentials.txt")));
             String s;
             while((s=uin.readLine())!=null){
                 String[] cred=s.split("\t",2);
