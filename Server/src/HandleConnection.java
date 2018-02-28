@@ -14,7 +14,7 @@ import java.util.Date;
 public class HandleConnection extends Thread {
 
     private Socket socket;
-    private static String logpath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//log.txt";
+    private static String logpath = "log.txt";
     private File logfile;
     private FileWriter logWriter;
     private UserInfo user;
@@ -112,7 +112,6 @@ public class HandleConnection extends Thread {
         /*
         * Front End directory
         * */
-        String abs_directory = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//front-end";   //Absolute Directory
         String rel_directory="..//front-end";   //Relative Directory
 
         /*
@@ -120,14 +119,14 @@ public class HandleConnection extends Thread {
         * */
         String homepage = "//homepage.html";
         String login = "//login.html";
-        String signup = "//signup.html";
+        String signup = "//signup1.html";
         String fourofour = "//fourofour.html";
         String refresh="//refresh.html";
 
         File infile = null;
 
         if (path.equals("/")) {
-            infile = new File(rel_directory + homepage);
+            infile = new File(rel_directory + login);
         } else if (path.equalsIgnoreCase("/login")) {
             infile = new File(rel_directory + login);
         } else if (path.equalsIgnoreCase("/signup")) {
@@ -157,6 +156,7 @@ public class HandleConnection extends Thread {
                         payload += s;
                         if (s.contains("<head>"))
                             payload += "<meta http-equiv=\"refresh\" content=\"0; url=" + socket.getLocalSocketAddress() + "/" + redirectto + "\"/>";
+                        payload+="\r\n";
                     }
                 } else {
                     String s;
@@ -166,6 +166,7 @@ public class HandleConnection extends Thread {
                         if (s.contains("localhost"))
                             s = s.replace("localhost:8080", socket.getLocalSocketAddress().toString());
                         payload += s;
+                        payload+= "\r\n";
                     }
                 }
             }
@@ -193,9 +194,8 @@ public class HandleConnection extends Thread {
                 if (inputString.contains("Content-Length:")) {
                     length = Integer.parseInt(inputString.substring(inputString.indexOf("Content-Length:") + 16, inputString.length()));
                 }
-                if(inputString.contains("Cookie"))
+               if(inputString.contains("Cookie"))
                     cookie=inputString.split("=")[1];
-
             }
 
             String[] reqheader = request.split("\n");
@@ -203,7 +203,7 @@ public class HandleConnection extends Thread {
                 String path = reqheader[0].split(" ")[1].trim();
 
                 if(path.equals("/")&&cookie!=null){
-                    BufferedReader bin=new BufferedReader(new FileReader(new File("/info/Cookies.txt")));
+                    BufferedReader bin=new BufferedReader(new FileReader(new File("info/Cookies.txt")));
                     String s;
                     while((s=bin.readLine())!=null)
                         if(s.contains(cookie))
