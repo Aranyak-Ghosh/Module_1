@@ -87,7 +87,7 @@ public class HandleConnection extends Thread {
                 BufferedReader read=new BufferedReader(new FileReader(new File("info/Cookies.txt")));
                 String s;
                 String cookie_list="";
-                FileWriter cookiewrite=new FileWriter(new File("/info/Cookies.txt"));
+                FileWriter cookiewrite=new FileWriter(new File("info/Cookies.txt"));
                 while((s=read.readLine())!=null)
                 {
                     if(s.contains(user.getUsername()))
@@ -155,7 +155,7 @@ public class HandleConnection extends Thread {
                     while ((s = in.readLine()) != null) {
                         payload += s;
                         if (s.contains("<head>"))
-                            payload += "<meta http-equiv=\"refresh\" content=\"0; url=" + socket.getLocalSocketAddress() + "/" + redirectto + "\"/>";
+                            payload += "<meta http-equiv=\"refresh\" content=\"0; url='http://localhost:8080" + redirectto + "'\"/>";
                         payload+="\r\n";
                     }
                 } else {
@@ -244,7 +244,7 @@ public class HandleConnection extends Thread {
                             username=fieldvalue;
                         else if(fieldname.equalsIgnoreCase("password"))
                             password=fieldvalue;
-                        else
+                        else if(fieldname.equalsIgnoreCase("email"))
                             email=fieldvalue;
                     }
                     user = new UserInfo(username,password,email);
@@ -252,7 +252,7 @@ public class HandleConnection extends Thread {
                         user.addUser();
                         logWriter.write(LocalDateTime.now().toString()+": User created");
 
-                        String response=ReadFile("refresh\tlogin");
+                        String response=ReadFile("refresh\t/login");
                         String resheader=createHeader(payload,true,false);
                         out.write(resheader+response);
                     }
@@ -279,9 +279,10 @@ public class HandleConnection extends Thread {
                     }
                     if(UserInfo.authenticate(username,password)){
                         user=new UserInfo(username,password,"not_required");
-                        String response=ReadFile("refresh\thomepage");
+                        String response=ReadFile("refresh\t/");
                         String head=createHeader(response,true,true);
                         out.write(head+response);
+                        out.flush();
                         logWriter.write(LocalDateTime.now().toString()+": User Authenticated");
                     }
                     else{
