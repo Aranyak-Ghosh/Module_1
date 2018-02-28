@@ -12,6 +12,7 @@ public class HandleConnection extends Thread {
     private static String logpath = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//Server//log.txt";
     private File logfile;
     private FileWriter logWriter;
+    private UserInfo user;
 
     public HandleConnection() {
         this.socket = null;
@@ -20,6 +21,7 @@ public class HandleConnection extends Thread {
     public HandleConnection(Socket socket) {
         this.socket = socket;
         logfile = new File(logpath);
+        user=new UserInfo("AK","","");
         try {
             logWriter = new FileWriter(logfile, true);
             logWriter.write(LocalDateTime.now().toString() + ": Connection Handler object created for client " + socket.getInetAddress()+"\n");
@@ -79,7 +81,8 @@ public class HandleConnection extends Thread {
         /*
         * Front End directory
         * */
-        String directory = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//front-end";
+        String abs_directory = "C://Users//Aranyak Ghosh//IdeaProjects//Module_1//front-end";   //Absolute Directory
+        String rel_directory="..//front-end";   //Relative Directory
 
         /*
         * Filenames
@@ -88,21 +91,23 @@ public class HandleConnection extends Thread {
         String login = "//login.html";
         String signup = "//signup.html";
         String fourofour = "//fourofour.html";
-
+        String refresh="//refresh.html";
 
         File infile = null;
 
         if (path.equals("/")) {
-            infile = new File(directory + homepage);
+            infile = new File(rel_directory + homepage);
         } else if (path.equalsIgnoreCase("/login")) {
-            infile = new File(directory + login);
+            infile = new File(rel_directory + login);
         } else if (path.equalsIgnoreCase("/signup")) {
-            infile = new File(directory + signup);
+            infile = new File(rel_directory + signup);
         } else if(path.equalsIgnoreCase("/favicon.ico")){
             //DO NOTHING
-        }
-        else {
-            infile = new File(directory + fourofour);
+
+        } else if(path.startsWith("refresh")){
+            infile=new File(rel_directory+refresh);
+        } else {
+            infile = new File(rel_directory + fourofour);
         }
         try {
             logWriter.write(LocalDateTime.now() + ": File requested: " + path+"\n");
@@ -111,10 +116,31 @@ public class HandleConnection extends Thread {
             ex.printStackTrace();
         }
         try {
-            FileReader in = new FileReader(infile);
-            int c;
-            while ((c = in.read()) != -1)
-                payload += (char) c;
+            if(infile!=null) {
+                BufferedReader in = new BufferedReader(new FileReader(infile));
+                int c;
+                if (infile.getName().startsWith("refresh")) {
+                    String s;
+                    String redirectto = path.split("\t")[1];
+                    while ((s = in.readLine()) != null) {
+                        if (s.contains("span") && s.contains("username"))
+                            s = s.replace("><", ">" + user.getUsername() + "<");
+                        payload += s;
+                        if (s.contains("<head>"))
+                            payload += "<meta http-equiv=\"refresh\" content=\"0; url=" + socket.getLocalSocketAddress() + "/" + redirectto + "\"/>";
+                    }
+                } else {
+                    String s;
+                    while ((s = in.readLine()) != null) {
+                        if (s.contains("span") && s.contains("username"))
+                            s = s.replace("><", ">" + user.getUsername() + "<");
+                        if (s.contains("localhost"))
+                            s = s.replace("localhost:8080", socket.getLocalSocketAddress().toString());
+                        payload += s;
+                    }
+                }
+            }
+
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         } catch (IOException e) {
@@ -179,12 +205,14 @@ public class HandleConnection extends Thread {
                         else
                             email=fieldvalue;
                     }
-                    UserInfo user = new UserInfo(username,password,email);
+                    user = new UserInfo(username,password,email);
                     if(!user.exist()){
                         user.addUser();
                         logWriter.write(LocalDateTime.now().toString()+": User created");
-                        //TODO: Send login page
-                        //TODO: Redirect
+
+                        String response=ReadFile("refresh\tlogin");
+                        String resheader=createHeader(payload,true);
+                        out.write(resheader+response);
                     }
                     else{
                         logWriter.write(LocalDateTime.now().toString()+": User already exists.");
@@ -208,8 +236,8 @@ public class HandleConnection extends Thread {
 
                     }
                     if(UserInfo.authenticate(username,password)){
-                        //TODO: Send homepage page
-                        //TODO: Redirect
+
+                        String response=ReadFile("refresh\thomepage");
                         //TODO: Send a cookie as part of the header
                     }
                     else{
