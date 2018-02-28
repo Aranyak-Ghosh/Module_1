@@ -1,7 +1,12 @@
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.Buffer;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,7 +35,7 @@ public class HandleConnection extends Thread {
         }
     }
 
-    private String createHeader(String payload, boolean success) {
+    private String createHeader(String payload, boolean success, boolean cookie) {
         int contentLength = payload.length();
 
         String date = (new Date()).toString();
@@ -56,7 +61,7 @@ public class HandleConnection extends Thread {
         String reHeaders = null;
         if (success) {
             reHeaders = "HTTP/1.1 200 OK\r\nContent-type = text/html\r\nConnection = " + keepAliveS + "\r\nServer = "
-                    + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date + "\r\n\r\n";
+                    + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date + "\r\n";
             try {
                 logWriter.write(LocalDateTime.now().toString() + ": HTTP 200 header created\n");
             } catch (IOException ex) {
@@ -65,13 +70,39 @@ public class HandleConnection extends Thread {
         } else {
             reHeaders = "HTTP/1.1 404 NOT FOUND\r\nContent-type = text/html\r\nConnection = " + keepAliveS
                     + "\r\nServer = " + serverName + "\r\nContent-Length = " + contentLength + "\r\nDate = " + date
-                    + "\r\n\r\n";
+                    + "\r\n";
             try {
                 logWriter.write(LocalDateTime.now().toString() + ": HTTP 404 header created\n");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        if(cookie)
+        {
+            reHeaders+="Set-Cookie: Date="+LocalDateTime.now().toString();
+            OffsetDateTime onemonthFromNow = OffsetDateTime.now(ZoneOffset.UTC).plus(Duration.ofHours(1));
+            String cookieExpires = DateTimeFormatter.RFC_1123_DATE_TIME.format(onemonthFromNow);
+            reHeaders+=" "+cookieExpires+"\r\n";
+            try{
+                BufferedReader read=new BufferedReader(new FileReader(new File("/info/Cookies.txt")));
+                String s;
+                String cookie_list="";
+                FileWriter cookiewrite=new FileWriter(new File("/info/Cookies.txt"));
+                while((s=read.readLine())!=null)
+                {
+                    if(s.contains(user.getUsername()))
+                        s=user.getUsername()+"\t"+LocalDateTime.now().toString();
+                    cookie_list+=s;
+                    cookie_list+="\n";
+                }
+                cookiewrite.write(cookie_list);
+            }catch(FileNotFoundException ex){
+                ex.printStackTrace();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        reHeaders+="\r\n";
         return reHeaders;
     }
 
@@ -118,13 +149,11 @@ public class HandleConnection extends Thread {
         try {
             if(infile!=null) {
                 BufferedReader in = new BufferedReader(new FileReader(infile));
-                int c;
+
                 if (infile.getName().startsWith("refresh")) {
                     String s;
                     String redirectto = path.split("\t")[1];
                     while ((s = in.readLine()) != null) {
-                        if (s.contains("span") && s.contains("username"))
-                            s = s.replace("><", ">" + user.getUsername() + "<");
                         payload += s;
                         if (s.contains("<head>"))
                             payload += "<meta http-equiv=\"refresh\" content=\"0; url=" + socket.getLocalSocketAddress() + "/" + redirectto + "\"/>";
@@ -133,7 +162,7 @@ public class HandleConnection extends Thread {
                     String s;
                     while ((s = in.readLine()) != null) {
                         if (s.contains("span") && s.contains("username"))
-                            s = s.replace("><", ">" + user.getUsername() + "<");
+                            s = s.replace("<span id='username'></span>!",  user.getUsername());
                         if (s.contains("localhost"))
                             s = s.replace("localhost:8080", socket.getLocalSocketAddress().toString());
                         payload += s;
@@ -156,7 +185,7 @@ public class HandleConnection extends Thread {
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String request = "";
-
+            String cookie=null;
             String inputString = "";
             int length = 0;
             while (!(inputString = in.readLine()).equals("")) {
@@ -164,14 +193,27 @@ public class HandleConnection extends Thread {
                 if (inputString.contains("Content-Length:")) {
                     length = Integer.parseInt(inputString.substring(inputString.indexOf("Content-Length:") + 16, inputString.length()));
                 }
+                if(inputString.contains("Cookie"))
+                    cookie=inputString.split("=")[1];
+
             }
 
             String[] reqheader = request.split("\n");
             if (reqheader[0].startsWith("GET")) {
                 String path = reqheader[0].split(" ")[1].trim();
 
+                if(path.equals("/")&&cookie!=null){
+                    BufferedReader bin=new BufferedReader(new FileReader(new File("/info/Cookies.txt")));
+                    String s;
+                    while((s=bin.readLine())!=null)
+                        if(s.contains(cookie))
+                            user=new UserInfo(s.split("/t")[0],"not-required","not-required");
+                        else
+                            path="/login";
+
+                }
                 String payload = ReadFile(path);
-                String resheader = createHeader(payload, !payload.contains("404"));
+                String resheader = createHeader(payload, !payload.contains("404"),false);
 
                 logWriter.write(LocalDateTime.now().toString() + ": Get request received from client\n");
                 /*
@@ -211,7 +253,7 @@ public class HandleConnection extends Thread {
                         logWriter.write(LocalDateTime.now().toString()+": User created");
 
                         String response=ReadFile("refresh\tlogin");
-                        String resheader=createHeader(payload,true);
+                        String resheader=createHeader(payload,true,false);
                         out.write(resheader+response);
                     }
                     else{
@@ -236,11 +278,14 @@ public class HandleConnection extends Thread {
 
                     }
                     if(UserInfo.authenticate(username,password)){
-
+                        user=new UserInfo(username,password,"not_required");
                         String response=ReadFile("refresh\thomepage");
-                        //TODO: Send a cookie as part of the header
+                        String head=createHeader(response,true,true);
+                        out.write(head+response);
+                        logWriter.write(LocalDateTime.now().toString()+": User Authenticated");
                     }
                     else{
+                        logWriter.write(LocalDateTime.now().toString()+": User Authentication rejected");
                         //TODO: Send error message
                         //TODO: invalid username or password
                     }

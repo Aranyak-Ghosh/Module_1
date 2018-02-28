@@ -274,3 +274,33 @@
 2018-02-28T18:07:52.184: Connection Handler object created for client /0:0:0:0:0:0:0:1
 2018-02-28T18:07:52.185: Handle Connection thread running
 2018-02-28T18:07:52.186: File requested: /favicon.ico
+2018-02-28T18:27:55.346: PingServer Thread launched.
+2018-02-28T18:27:55.348: ServerSocket created on port: 8080.
+2018-02-28T18:28:01.549: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:28:01.582: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:28:01.583: Handle Connection thread running
+2018-02-28T18:28:01.586: File requested: /
+2018-02-28T18:28:01.615: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:28:01.628: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:28:01.629: Handle Connection thread running
+2018-02-28T18:28:03.521: File requested: /favicon.ico
+2018-02-28T18:28:30.735: PingServer Thread launched.
+2018-02-28T18:28:30.737: ServerSocket created on port: 8080.
+2018-02-28T18:28:33.097: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:28:33.116: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:28:33.117: Handle Connection thread running
+2018-02-28T18:28:33.119: File requested: /
+2018-02-28T18:28:33.144: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:28:33.155: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:28:33.156: Handle Connection thread running
+2018-02-28T18:28:34.597: File requested: /favicon.ico
+2018-02-28T18:29:17.869: PingServer Thread launched.
+2018-02-28T18:29:17.871: ServerSocket created on port: 8080.
+2018-02-28T18:29:18.354: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:29:18.388: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:29:18.389: Handle Connection thread running
+2018-02-28T18:29:18.390: File requested: /
+2018-02-28T18:29:18.415: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-02-28T18:29:18.426: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-02-28T18:29:18.427: Handle Connection thread running
+2018-02-28T18:29:20.200: File requested: /favicon.ico
