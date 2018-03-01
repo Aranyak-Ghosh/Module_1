@@ -269,6 +269,7 @@ public class HandleConnection extends Thread {
                         String response=ReadFile("refresh\t/login");
                         String resheader=createHeader(payload,true,false);
                         out.write(resheader+response);
+                        out.flush();
                     }
                     else{
                         logWriter.write(LocalDateTime.now().toString()+": User already exists.");

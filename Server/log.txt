@@ -584,3 +584,72 @@
 2018-03-01T11:22:03.616: File requested: /
 2018-03-01T11:22:03.627: HTTP 200 header created
 2018-03-01T11:22:03.627: Get request received from client
+2018-03-01T11:23:47.076: PingServer Thread launched.
+2018-03-01T11:23:47.079: ServerSocket created on port: 8080.
+2018-03-01T11:23:49.618: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:49.632: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:49.633: Handle Connection thread running
+2018-03-01T11:23:49.637: File requested: /login
+2018-03-01T11:23:49.654: HTTP 200 header created
+2018-03-01T11:23:49.654: Get request received from client
+2018-03-01T11:23:50.880: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:50.881: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:50.882: Handle Connection thread running
+2018-03-01T11:23:50.882: File requested: /favicon.ico
+2018-03-01T11:23:50.883: HTTP 200 header created
+2018-03-01T11:23:50.883: Get request received from client
+2018-03-01T11:23:53.609: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:53.610: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:53.611: Handle Connection thread running
+2018-03-01T11:23:53.612: Login request received2018-03-01T11:23:53.613: File requested: refresh	/
+2018-03-01T11:23:53.614: HTTP 200 header created
+2018-03-01T11:23:53.753: User Authenticated2018-03-01T11:23:54.392: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:54.392: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:54.393: Handle Connection thread running
+2018-03-01T11:23:54.394: File requested: /
+2018-03-01T11:23:54.405: HTTP 200 header created
+2018-03-01T11:23:54.405: Get request received from client
+2018-03-01T11:23:54.408: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:54.409: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:54.410: Handle Connection thread running
+2018-03-01T11:23:54.411: File requested: /favicon.ico
+2018-03-01T11:23:54.411: HTTP 200 header created
+2018-03-01T11:23:54.411: Get request received from client
+2018-03-01T11:23:55.618: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:23:55.619: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:23:55.623: Handle Connection thread running
+2018-03-01T11:23:55.624: File requested: /favicon.ico
+2018-03-01T11:23:55.624: HTTP 200 header created
+2018-03-01T11:23:55.625: Get request received from client
+2018-03-01T11:24:04.923: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:24:04.924: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:24:04.925: Handle Connection thread running
+2018-03-01T11:24:04.935: File requested: /login
+2018-03-01T11:24:04.947: HTTP 200 header created
+2018-03-01T11:24:04.947: Get request received from client
+2018-03-01T11:24:04.948: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:24:04.949: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:24:04.949: Handle Connection thread running
+2018-03-01T11:24:05.562: File requested: /favicon.ico
+2018-03-01T11:24:05.562: HTTP 200 header created
+2018-03-01T11:24:05.562: Get request received from client
+2018-03-01T11:24:05.563: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:25:18.856: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:25:18.869: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:25:18.870: Handle Connection thread running
+2018-03-01T11:25:18.873: File requested: /signup
+2018-03-01T11:25:18.882: HTTP 200 header created
+2018-03-01T11:25:18.882: Get request received from client
+2018-03-01T11:25:18.882: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:25:18.892: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:25:18.893: Handle Connection thread running
+2018-03-01T11:25:20.031: File requested: /favicon.ico
+2018-03-01T11:25:20.031: HTTP 200 header created
+2018-03-01T11:25:20.031: Get request received from client
+2018-03-01T11:25:20.033: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:25:31.778: Connection Accepted. Client INET address: /0:0:0:0:0:0:0:1
+2018-03-01T11:25:31.789: Connection Handler object created for client /0:0:0:0:0:0:0:1
+2018-03-01T11:25:31.790: Handle Connection thread running
+2018-03-01T11:25:31.791: Register request received
+2018-03-01T11:25:31.797: User created2018-03-01T11:25:31.797: File requested: refresh	/login
+2018-03-01T11:25:31.805: HTTP 200 header created
