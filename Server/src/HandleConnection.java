@@ -214,13 +214,18 @@ public class HandleConnection extends Thread {
                 if(path.equals("/")&&cookie!=null){
                     BufferedReader bin=new BufferedReader(new FileReader(new File("info/Cookies.txt")));
                     String s;
-                    while((s=bin.readLine())!=null)
-                        if(s.contains(cookie))
-                            user=new UserInfo(s.split("/t")[0],"not-required","not-required");
+                    while((s=bin.readLine())!=null){
+                        if(s.contains(cookie.substring(cookie.indexOf("Date")))) {
+                            user = new UserInfo(s.split("/t")[0], "not-required", "not-required");
+                            break;
+                        }
                         else
                             path="/login";
-
+                    }
+                    if(s==null)
+                        path="/login";
                 }
+
                 String payload = ReadFile(path);
                 String resheader = createHeader(payload, !payload.contains("404"),false);
 
